@@ -1,14 +1,9 @@
-import sys
-import os
 import streamlit as st
-import importlib.util
+from core.db import init_db
+from ui.theme import aplicar as aplicar_tema
+from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin
 
-# Garante que a raiz do projeto está no path do Python
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
-
-# Configuração da página para Mobile-First
+# 1. Configuração de Página Mobile-First
 st.set_page_config(
     page_title="Denário",
     page_icon="💰",
@@ -16,30 +11,20 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Carregamento direto do ficheiro ui/theme.py
-theme_path = os.path.join(BASE_DIR, "ui", "theme.py")
-spec = importlib.util.spec_from_file_location("theme_module", theme_path)
-theme_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(theme_module)
-
-# Injeta metadados de PWA para telemóvel
+# 2. Metadados PWA
 st.markdown("""
     <link rel="manifest" href="/app/static/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 """, unsafe_allow_html=True)
 
-# Aplica o tema visual chamando a função 'aplicar' do theme.py
-theme_module.aplicar("azul")
+# 3. Estilo Visual
+aplicar_tema("azul")
 
-# Importação dos restantes módulos internos
-from core.db import init_db
-from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin
-
-# Inicializa a base de dados (Supabase / PostgreSQL)
+# 4. Conexão ao Supabase PostgreSQL
 init_db()
 
-# Gestão de Sessão do Utilizador
+# 5. Gestão de Sessão e Rotas
 if "usuario_autenticado" not in st.session_state:
     st.session_state["usuario_autenticado"] = False
 
