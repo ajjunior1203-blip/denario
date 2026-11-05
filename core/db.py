@@ -13,8 +13,8 @@ class Usuario(Base):
     email = Column(String(255), unique=True, nullable=False)
     senha_hash = Column(String(255), nullable=False)
     nome = Column(String(100), nullable=False)
-    role = Column(String(20), default='user')  # 'admin' ou 'user'
-    is_approved = Column(Boolean, default=False)  # Bloqueado até o Admin aprovar
+    role = Column(String(20), default='user')
+    is_approved = Column(Boolean, default=False)
     criado_em = Column(DateTime, default=datetime.utcnow)
 
     lancamentos = relationship("Lancamento", back_populates="usuario", cascade="all, delete-orphan")
@@ -27,7 +27,7 @@ class Lancamento(Base):
     user_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
     descricao = Column(String(255), nullable=False)
     valor = Column(Float, nullable=False)
-    tipo = Column(String(10), nullable=False)  # 'receita' ou 'despesa'
+    tipo = Column(String(10), nullable=False)
     categoria = Column(String(50), nullable=False)
     data = Column(DateTime, default=datetime.utcnow, nullable=False)
 
@@ -45,12 +45,13 @@ class Orcamento(Base):
 
 @st.cache_resource
 def get_engine():
-    # Obtém a URL de conexão dos segredos do Streamlit ou variáveis de ambiente
     db_url = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL", "sqlite:///denario.db"))
     
-    # Tratamento para URLs antigas do Heroku/Supabase que usam postgres://
+    # Padroniza a URL para utilizar explicitamente o driver postgresql+psycopg2
     if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
+        db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+psycopg2://"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
         
     return create_engine(db_url, pool_pre_ping=True)
 
