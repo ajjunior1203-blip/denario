@@ -1,6 +1,11 @@
 import streamlit as st
 from core.db import init_db
-from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin, theme
+
+# Importação direta do módulo de tema
+from ui import theme
+
+# Importação direta das views
+from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin
 
 # Configuração da página para Mobile First
 st.set_page_config(
@@ -17,7 +22,7 @@ st.markdown("""
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 """, unsafe_allow_html=True)
 
-# Aplica estilos visuais otimizados
+# Aplica o tema visual (utilizando a função aplicar() presente no theme.py)
 theme.aplicar()
 
 # Inicializa as tabelas do banco de dados na inicialização
