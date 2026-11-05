@@ -1,13 +1,11 @@
+import sys
+import os
 import streamlit as st
-from core.db import init_db
 
-# Importação direta da função de tema
-from ui.theme import aplicar as aplicar_tema
+# Garante que a raiz do projeto está no caminho de importação do Python
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Importação das views
-from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin
-
-# 1. Configuração da página
+# Configuração da página para Mobile-First
 st.set_page_config(
     page_title="Denário",
     page_icon="💰",
@@ -15,20 +13,25 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Injeta metadados PWA para ecrã táctil / mobile
+# Importação dos módulos internos após o ajuste do sys.path
+from core.db import init_db
+from ui import theme
+from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin
+
+# Injeta metadados de PWA para telemóvel
 st.markdown("""
     <link rel="manifest" href="/app/static/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 """, unsafe_allow_html=True)
 
-# 3. Aplica o tema visual (chama a função 'aplicar' do theme.py)
-aplicar_tema("azul")
+# Aplica o tema visual chamando a função 'aplicar' do theme.py
+theme.aplicar("azul")
 
-# 4. Inicializa a base de dados (Supabase / PostgreSQL)
+# Inicializa o banco de dados (Supabase / PostgreSQL)
 init_db()
 
-# 5. Gestão de Sessão do Utilizador
+# Gestão de Sessão do Utilizador
 if "usuario_autenticado" not in st.session_state:
     st.session_state["usuario_autenticado"] = False
 
