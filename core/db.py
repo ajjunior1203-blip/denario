@@ -47,14 +47,16 @@ class Orcamento(Base):
 def get_engine():
     db_url = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL", "sqlite:///denario.db"))
     
+    # Normalização de Driver PostgreSQL para SQLAlchemy
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
     elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+psycopg2://"):
         db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
-        
+
     connect_args = {}
     if "postgresql" in db_url:
         connect_args["sslmode"] = "require"
+        connect_args["connect_timeout"] = 10
 
     return create_engine(
         db_url,
@@ -69,5 +71,9 @@ def get_session():
     return Session()
 
 def init_db():
-    engine = get_engine()
-    Base.metadata.create_all(engine)
+    try:
+        engine = get_engine()
+        Base.metadata.create_all(engine)
+    except Exception as e:
+        st.error(f"Erro de conexão com o banco de dados: {e}")
+        raise e
