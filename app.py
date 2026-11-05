@@ -1,13 +1,13 @@
 import streamlit as st
 from core.db import init_db
 
-# Importação direta do módulo de tema
-from ui import theme
+# Importação direta da função de tema
+from ui.theme import aplicar as aplicar_tema
 
-# Importação direta das views
+# Importação das views
 from ui import v_login, v_lancamentos, v_orcamento, v_relatorios, v_perfil, v_admin
 
-# Configuração da página para Mobile First
+# 1. Configuração da página
 st.set_page_config(
     page_title="Denário",
     page_icon="💰",
@@ -15,27 +15,26 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Injeta metadados de PWA na aplicação
+# 2. Injeta metadados PWA para ecrã táctil / mobile
 st.markdown("""
     <link rel="manifest" href="/app/static/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 """, unsafe_allow_html=True)
 
-# Aplica o tema visual (utilizando a função aplicar() presente no theme.py)
-theme.aplicar()
+# 3. Aplica o tema visual (chama a função 'aplicar' do theme.py)
+aplicar_tema("azul")
 
-# Inicializa as tabelas do banco de dados na inicialização
+# 4. Inicializa a base de dados (Supabase / PostgreSQL)
 init_db()
 
-# Controlo de Estado da Sessão
+# 5. Gestão de Sessão do Utilizador
 if "usuario_autenticado" not in st.session_state:
     st.session_state["usuario_autenticado"] = False
 
 if not st.session_state["usuario_autenticado"]:
     v_login.render()
 else:
-    # Menu Superior / Barra de Navegação Compacta
     role = st.session_state.get("user_role", "user")
     
     opcoes_menu = ["⚡ Lançamentos", "📊 Relatórios", "🎯 Orçamento", "👤 Perfil"]
